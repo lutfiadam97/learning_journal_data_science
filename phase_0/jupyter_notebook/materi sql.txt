@@ -1,0 +1,160 @@
+1. DDL (Data Definiton Language)
+
+-- Create Table teacher
+CREATE TABLE teachers(
+	id INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
+  	first_name VARCHAR(25) NOT NULL,
+  	last_name VARCHAR(50),
+  	school VARCHAR(50) NOT NULL,
+  	hire_date DATE,
+  	salary NUMERIC
+);
+
+-- insert data
+INSERT INTO teachers (id,first_name,last_name,school,hire_date,salary)
+	VALUES (1,'Janet', 'Smith', 'MIT', '2011-10-30', 36200),
+           (2,'Lee', 'Reynolds', 'MIT', '1993-05-22', 65000),
+           (3,'Samuel', 'Cole', 'Cambridge University', '2005-08-01', 43500),
+           (4,'Samantha', 'Bush', 'Cambridge University', '2011-10-30', 36200),
+           (5,'Betty', 'Diaz', 'Cambridge University', '2005-08-30', 43500),
+           (6,'Kathleen', 'Roush', 'MIT', '2010-10-22', 38500),
+           (7,'James', 'Diaz', 'Harvard University', '2003-07-18', 61000),
+           (8,'Zack', 'Smith', 'Harvard University', '2000-12-29', 55500),
+           (9,'Luis', 'Gonzales', 'Standford University', '2002-12-01', 50000),
+           (10,'Frank', 'Abbers', 'Standford University', '1999-01-30', 66000);
+   
+-- mengambil semua kolom/data dari tabel teachers   
+SELECT * FROM teachers;
+
+-- Menambah kolom age teachers
+ALTER TABLE teachers add age int;
+
+-- menghapus kolom age
+alter TABLE teachers DROP COLUMN age;
+
+-- mengganti tipe data 
+alter table teachers MODIFY COLUMN salary int;
+
+-- menambah data baru tanpa id 
+INSERT INTO teachers (first_name, last_name, school, hire_date, salary)
+    VALUES ('Samuel', 'Abbers', 'Standford University', '2006-01-30', 32000),
+           ('Jessica', 'Abbers', 'Standford University', '2005-01-30', 33000),
+           ('Tom', 'Massi', 'Harvard University', '1999-09-09', 39500),
+           ('Esteban', 'Brown', 'MIT', '2007-01-30', 36000),
+           ('Carlos', 'Alonso', 'Standford University', '2001-01-30', 44000);
+           
+-- mengganti nama tabel teachers ke guru 
+alter TABLE teachers RENAME guru;
+
+-- melihat tabel guru 
+SELECT * FROM guru;
+
+-- mengosongkan data di tabel guru 
+TRUNCATE TABLE guru;
+
+-- menghapus tabel dan data
+DROP TABLE teachers;
+
+-- menghapus data spesifik (id=2)
+DELETE from teachers WHERE id=2
+
+
+2. DQL (Data Query Language)
+
+-- Mengambil semua data 
+SELECT * FROM teachers
+
+-- mengambil column first_name, school, salary
+SELECT first_name, school, salary 
+FROM teachers;
+
+-- mengambil data dimana school = MIT 
+SELECT *
+FROM teachers
+WHERE school='MIT' and salary>37000;
+
+SELECT *
+FROM teachers
+WHERE school='MIT' OR school='Standford University';
+
+SELECT *
+FROM teachers
+WHERE school in ('MIT', 'Standford University');
+
+-- Mencari jumlah guru dimana school=MT/Standford University 
+SELECT COUNT(*) as 'Jumlah Guru'
+FROM teachers
+WHERE school in ('MIT', 'Standford University');
+
+-- mengambil data dimana school=MIT/Standford University dan diurutkan berdasarkan gaji
+SELECT *
+FROM teachers
+WHERE school in ('MIT', 'Standford University')
+ORDER BY salary DESC;
+
+-- mencari tahu berapa banyak sekolah di database 
+SELECT DISTINCT school
+FROM teachers;
+
+-- Distinct itu gunanya untuk mencegah data duplikat / mencari nilai unik
+
+-- mencari jumlah sekolah
+SELECT COUNT(DISTINCT school) as 'School'
+FROM teachers;
+
+-- melihat semua data teachers yang berasal dari cambridge university 
+SELECT *
+FROM teachers
+WHERE school='Cambridge University';
+
+-- Aggregate function - min,max,avg
+SELECT min(salary)
+FROM teachers
+WHERE school='Cambridge University';
+
+SELECT MAX(salary)
+FROM teachers
+WHERE school='Cambridge University';
+
+SELECT AVG(salary)
+FROM teachers
+WHERE school='Cambridge University';
+
+-- Aggregate function - avg dgn round/floor/ceil
+SELECT AVG(salary), round(AVG(salary))
+FROM teachers
+WHERE school='Cambridge University';
+
+
+-- SUBQUERY : menampilkan semua kolom dimana dosen mengajar di cambridge univ dan mempunyai gaji terkecil
+SELECT *
+FROM teachers
+WHERE school='Cambridge University' AND salary=(
+  SELECT MIN(salary)
+  FROM teachers
+  WHERE school='Cambridge University'
+ );
+ 
+ -- SUBQUERY : Menampilkan semua kolom dimana dosen mengajar di MIT yg memiliki gaji lebih besar dari rata2 dosen di Standford Univ 
+ SELECT * 
+ FROM teachers
+ WHERE school='MIT' and salary>(
+   SELECT AVG(salary)
+   FROM teachers
+   WHERE school='Standford University'
+ )
+ 
+ -- GROUP BY : Menampilkan first_name, last_name, school, salary kolom dimana dosen memiliki gaji terkecil disetiap universitas 
+SELECT school, MIN(salary)
+FROM teachers
+GROUP BY school
+ 
+SELECT *
+FROM teachers
+WHERE salary IN (SELECT MIN(salary) FROM teachers GROUP BY school)
+GROUP BY school;
+
+-- gabungkan table teachers dengan table courses (metode inner join)
+SELECT *
+FROM teachers
+JOIN courses on teachers.id=courses.teachers_id;
